@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DebateBot App</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(45deg, #6a11cb, #2575fc);
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .app-container {
+      text-align: center;
+      width: 100%;
+      max-width: 800px;
+    }
+
+    header {
+      margin-bottom: 30px;
+    }
+
+    header h1 {
+      font-size: 3em;
+      color: #fff;
+    }
+
+    header p {
+      font-size: 1.2em;
+      margin-top: 10px;
+    }
+
+    .teams-container {
+      margin-top: 30px;
+      padding: 20px;
+    }
+
+    .team-list {
+      margin-bottom: 20px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+    }
+
+    .teams-display {
+      background-color: #fff;
+      color: #000;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .teams-display h3 {
+      margin-bottom: 15px;
+      font-size: 1.5em;
+      color: #2575fc;
+    }
+
+    .teams-display ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .teams-display ul li {
+      padding: 10px;
+      background-color: #f0f0f0;
+      margin: 5px 0;
+      border-radius: 5px;
+      text-align: left;
+    }
+
+    button {
+      background-color: #2575fc;
+      color: white;
+      padding: 10px 20px;
+      font-size: 1em;
+      border-radius: 10px;
+      cursor: pointer;
+      border: none;
+      transition: all 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #6a11cb;
+    }
+
+    .chatbot-container {
+      margin-top: 50px;
+    }
+
+    iframe {
+      border: none;
+      border-radius: 10px;
+      width: 100%;
+      max-width: 800px;
+      height: 500px;
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+  <div class="app-container">
+    <header>
+      <h1>Welcome to DebateBot</h1>
+      <p>Engage in lively discussions with DebateBot!</p>
+    </header>
+
+    <!-- Teams Container -->
+    <div class="teams-container">
+      <div class="team-list">
+        <button onclick="addTeam('Team 1')">Add Team 1</button>
+        <button onclick="addTeam('Team 2')">Add Team 2</button>
+        <button onclick="addTeam('Team 3')">Add Team 3</button>
+        <button onclick="addTeam('Team 4')">Add Team 4</button>
+        <button onclick="addTeam('Team 5')">Add Team 5</button>
+      </div>
+      <div class="teams-display">
+        <h3>Teams List</h3>
+        <ul id="teams-list">
+          <!-- Teams will be added here dynamically -->
+        </ul>
+      </div>
+      <button style="margin-top: 20px;" onclick="assignRandomTeams()">Assign Teams</button>
+    </div>
+
+    <!-- Pro/Con Assignments -->
+    <div class="pro-con-assignments">
+      <h3>Pro or Con</h3>
+      <ul id="pro-con">
+        <li id="pro">Pro: <span id="pro-team">Waiting...</span></li>
+        <li id="con">Con: <span id="con-team">Waiting...</span></li>
+      </ul>
+    </div>
+
+    <div class="chatbot-container">
+      <div id="chatbot" class="chatbot">
+        <iframe src="https://beta.pickaxeproject.com/axe?id=Debatebot__BR3M6"></iframe>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let teams = [];
+
+    // Add team to the list
+    function addTeam(teamName) {
+      if (teams.length >= 8) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Limit Reached',
+          text: 'Maximum 8 teams allowed.',
+        });
+        return;
+      }
+      if (teams.includes(teamName)) {
+        Swal.fire({
+          icon: 'info',
+          title: 'Already Added',
+          text: `${teamName} is already on the list!`,
+        });
+        return;
+      }
+      teams.push(teamName);
+      updateTeamsList();
+    }
+
+    // Update the teams list
+    function updateTeamsList() {
+      const listElement = document.getElementById("teams-list");
+      listElement.innerHTML = ""; // Clear current list
+      teams.forEach(team => {
+        const li = document.createElement("li");
+        li.textContent = team;
+        listElement.appendChild(li);
+      });
+    }
+
+    // Assign teams to Pro or Con
+    function assignRandomTeams() {
+      if (teams.length < 2) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Not Enough Teams',
+          text: 'You need at least 2 teams to assign Pro and Con.',
+        });
+        return;
+      }
+
+      const randomProIndex = Math.floor(Math.random() * teams.length);
+      const proTeam = teams.splice(randomProIndex, 1)[0];
+
+      const randomConIndex = Math.floor(Math.random() * teams.length);
+      const conTeam = teams.splice(randomConIndex, 1)[0];
+
+      document.getElementById("pro-team").textContent = proTeam;
+      document.getElementById("con-team").textContent = conTeam;
+
+      updateTeamsList();
+
+      Swal.fire({
+        title: 'Teams Assigned!',
+        text: `${proTeam} is Pro and ${conTeam} is Con!`,
+        icon: 'success',
+        confirmButtonText: 'Great!'
+      });
+    }
+  </script>
+</body>
+</html>
